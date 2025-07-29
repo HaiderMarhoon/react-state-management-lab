@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState  } from 'react';
 import './App.css';
 const App = () => {
 
   const [money, setMoney] = useState(100);
   const [team, setTeam] = useState([]);
+  const [totalStrength, setTotalStrength] = useState(0)
+  const [totalAgility, setTotalAgility] = useState(0)
   const zombieFighters = [
     {
       name: 'Survivor',
@@ -82,7 +84,30 @@ const App = () => {
       console.log("Not enough money");
       return;
     }
+    const newTeam = [...team, fighter];
+    setTeam(newTeam);
+    setMoney(money - fighter.price);
+    calculateTotals(newTeam);
   }
+
+  const calculateTotals = (team) => {
+    const strength = team.reduce((sum, fighter) => sum + fighter.strength, 0);
+    const agility = team.reduce((sum, fighter) => sum + fighter.agility, 0);
+    setTotalStrength(strength)
+    setTotalAgility(agility)
+  };
+
+
+
+  const handleRemoveFighter = (remove) => {
+    const removeFighter = team[remove]
+    const newTeam = team.filter((_, idx) => idx !== remove)
+
+    setTeam(newTeam)
+    setMoney(money + removeFighter.price)
+    calculateTotals(newTeam)
+  }
+
 
 
 
@@ -92,6 +117,8 @@ const App = () => {
     <div className="App">
       <h1>zombieFighters</h1>
       <div>Current Money: ${money}</div>
+      <div>Strength: {totalStrength}</div>
+      <div>Agility: {totalAgility}</div>
       <ul>
         {zombieFighters.map((fighter) => (
           <li>
@@ -102,15 +129,30 @@ const App = () => {
             <p>agility: {fighter.agility}</p>
             <button
               onClick={() => handleAddFighter(fighter)}
-              className="add-button"
               disabled={money < fighter.price}
             >
               Add to Team
             </button>
           </li>
-
         ))}
       </ul>
+      <h2>Your Team</h2>
+      {team.length === 0 ? <p>No fighters in your team.</p> : (
+        <ul>
+          {team.map((fighter, index) => (
+            <li key={index}>
+              <h3>{fighter.name}</h3>
+              <img src={fighter.img} alt={fighter.name} />
+              <p>Price: ${fighter.price}</p>
+              <p>Strength: {fighter.strength}</p>
+              <p>Agility: {fighter.agility}</p>
+              <button onClick={() => handleRemoveFighter(index)}>
+                Remove from Team
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
